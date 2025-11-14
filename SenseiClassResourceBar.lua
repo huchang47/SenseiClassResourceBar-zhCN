@@ -132,6 +132,7 @@ barConfigs.primary = {
             ["DEATHKNIGHT"] = Enum.PowerType.RunicPower,
             ["DEMONHUNTER"] = Enum.PowerType.Fury,
             ["DRUID"]       = Enum.PowerType.Mana,
+            ["EVOKER"]      = Enum.PowerType.Mana,
             ["HUNTER"]      = Enum.PowerType.Focus,
             ["MAGE"]        = Enum.PowerType.Mana,
             ["MONK"]        = Enum.PowerType.Energy,
