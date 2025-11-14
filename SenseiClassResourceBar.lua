@@ -237,7 +237,7 @@ barConfigs.secondary = {
         tickWidth = 1,
     },
     getResource = function()
-        local _, class = UnitClass("player")
+        local class = select(2, UnitClass("player"))
         local secondaryResources = {
             ["DEATHKNIGHT"] = Enum.PowerType.Runes,
             ["DEMONHUNTER"] = nil,
@@ -263,7 +263,8 @@ barConfigs.secondary = {
             ["WARRIOR"]     = nil,
         }
 
-        local specID = GetSpecialization()
+        local spec = GetSpecialization()
+        local specID = GetSpecializationInfo(spec)
 
         -- Druid: form-based
         if class == "DRUID" then
@@ -928,7 +929,6 @@ local function CreateBarInstance(config, parent)
                 end
             end)
             v:HookScript("OnHide", function()
-                print("essential show")
                 if data.widthMode == "Sync With Utility Cooldowns" then
                     self:ApplyLayout(layoutName)
                 end
