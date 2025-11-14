@@ -95,6 +95,7 @@ local foregroundStyles = {
     ["Fade Left"] = "Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarForegrounds\\fade-left.png",
     ["Fade Top"] = "Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarForegrounds\\fade-top.png",
     ["Fade Bottom"] = "Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarForegrounds\\fade-bottom.png",
+    ["Solid"] = "Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarForegrounds\\solid.png",
 }
 
 local availableForegroundStyles = {}
