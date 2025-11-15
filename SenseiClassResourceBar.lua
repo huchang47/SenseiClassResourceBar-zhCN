@@ -246,6 +246,9 @@ barConfigs.primary = {
             return max, current, current, "number"
         end
     end,
+    getBarColor = function(resource, frame)
+        return frame:GetResourceColor(resource)
+    end,
     lemSettings = function(dbName, defaults, frame)
         return {
             {
@@ -370,6 +373,9 @@ barConfigs.secondary = {
 
         return max, current, current, "number"
     end,
+    getBarColor = function(resource, frame)
+        return frame:GetResourceColor(resource)
+    end,
     lemSettings = function(dbName, defaults, frame)
         return {
             {
@@ -428,6 +434,64 @@ barConfigs.secondary = {
                     frame:UpdateTicks(layoutName)
                 end,
             },
+        }
+    end,
+}
+
+-- HEALTH BAR
+barConfigs.healthBar = {
+    dbName = "healthBarDB",
+    name = "Health Bar",
+    defaultValues = {
+        point = "CENTER",
+        x = 0,
+        y = 40,
+        barVisible = "Hidden",
+        useClassColor = true,
+    },
+    getResource = function()
+        return "HEALTH"
+    end,
+    getValue = function()
+        local current = UnitHealth("player")
+        local max = UnitHealthMax("player")
+        if max <= 0 then return nil, nil, nil, nil end
+        
+        return max, current, current, "number"
+    end,
+    getBarColor = function(_, frame)
+        local layoutName = LEM.GetActiveLayoutName() or "Default"
+        local data = SenseiClassResourceBarDB[frame.config.dbName][layoutName]
+        local playerClass = select(2, UnitClass("player"))
+        
+        if data and data.useClassColor == true then
+            local r,g, b = GetClassColor(playerClass)
+            return { r = r, g = g, b = b }
+        else
+            return { r = 0, g = 1, b = 0 }
+        end
+    end,
+    lemSettings = function(dbName, defaults, frame)
+        return {
+            {
+                order = 63,
+                name = "Use Class Color",
+                kind = LEM.SettingType.Checkbox,
+                default = defaults.useClassColor,
+                get = function(layoutName)
+                    local data = SenseiClassResourceBarDB[dbName][layoutName]
+                    if data and data.useClassColor ~= nil then
+                        return data.useClassColor
+                    else
+                        return defaults.useClassColor
+                    end
+                end,
+                set = function(layoutName, value)
+                    SenseiClassResourceBarDB[dbName][layoutName] = SenseiClassResourceBarDB[dbName][layoutName] or CopyTable(defaults)
+                    SenseiClassResourceBarDB[dbName][layoutName].useClassColor = value
+                    frame:UpdateDisplay(layoutName)
+                end,
+            }
         }
     end,
 }
@@ -552,7 +616,7 @@ local function CreateBarInstance(config, parent)
         -- Hide the main status bar fill (we display bars representing one (1) unit of resource each)
         self.statusBar:SetAlpha(0)
 
-        local color = self:GetResourceColor(resource)
+        local color = self.config.getBarColor(resource, frame)
 
         if resource == Enum.PowerType.Runes then
             -- Collect rune states: ready and recharging
@@ -700,7 +764,7 @@ local function CreateBarInstance(config, parent)
             self.textValue:SetText(AbbreviateNumbers(displayValue))
         end
 
-        local color = self:GetResourceColor(resource)
+        local color = self.config.getBarColor(resource, frame)
         self.statusBar:SetStatusBarColor(color.r, color.g, color.b)
 
         if fragmentedPowerTypes[resource] then
@@ -780,7 +844,7 @@ local function CreateBarInstance(config, parent)
     function frame:UpdateTicks(layoutName, resource, max)
         layoutName = layoutName or LEM.GetActiveLayoutName() or "Default"
         resource = resource or self.config.getResource()
-        max = max or (resource ~= "STAGGER" and UnitPowerMax("player", resource)) or 0
+        max = max or ((type(resource) ~= "number") and 0 or UnitPowerMax("player", resource))
 
         local data = SenseiClassResourceBarDB[self.config.dbName][layoutName]
         if not data then return end
@@ -791,7 +855,7 @@ local function CreateBarInstance(config, parent)
         end
 
         -- Arbitrarily show 4 ticks for edit mode for preview, if spec does not support it
-        if LEM:IsInEditMode() and data.showTicks == true and resource ~= "STAGGER" and not tickedPowerTypes[resource] then
+        if LEM:IsInEditMode() and data.showTicks == true and type(resource) == "number" and not tickedPowerTypes[resource] then
             max = 5
             resource = Enum.PowerType.ComboPoints
         end
@@ -1598,13 +1662,13 @@ SCRB:SetScript("OnEvent", function(_, event, arg1)
     if event == "ADDON_LOADED" and arg1 == addonName then
         if not SenseiClassResourceBarDB then
             SenseiClassResourceBarDB = {}
-end
+        end
 
--- Initialize primary bar
-InitializeBar(barConfigs.primary)
+        -- Initialize primary bar
+        InitializeBar(barConfigs.primary)
 
--- Initialize secondary bar
-InitializeBar(barConfigs.secondary)
+        -- Initialize secondary bar
+        InitializeBar(barConfigs.secondary)
 
         InitializeBar(barConfigs.healthBar)
     end
