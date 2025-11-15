@@ -1,4 +1,5 @@
 package-as: SenseiClassResourceBar
+enable-nolib-creation: no
 
 externals:
   Libs/LibStub: # required dependency

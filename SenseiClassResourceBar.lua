@@ -159,14 +159,18 @@ barConfigs.primary = {
     },
     getResource = function()
         local playerClass = select(2, UnitClass("player"))
-        local classResources = {
+        local primaryResources = {
             ["DEATHKNIGHT"] = Enum.PowerType.RunicPower,
             ["DEMONHUNTER"] = Enum.PowerType.Fury,
-            ["DRUID"]       = Enum.PowerType.Mana,
+            ["DRUID"]       = nil, -- Through code
             ["EVOKER"]      = Enum.PowerType.Mana,
             ["HUNTER"]      = Enum.PowerType.Focus,
             ["MAGE"]        = Enum.PowerType.Mana,
-            ["MONK"]        = Enum.PowerType.Energy,
+            ["MONK"]        = {
+                [268] = Enum.PowerType.Energy, -- Brewmaster
+                [269] = Enum.PowerType.Energy, -- Windwalker
+                [270] = Enum.PowerType.Mana, -- Mistweaver
+            },
             ["PALADIN"]     = Enum.PowerType.Mana,
             ["PRIEST"]      = Enum.PowerType.Mana,
             ["ROGUE"]       = Enum.PowerType.Energy,
@@ -174,6 +178,9 @@ barConfigs.primary = {
             ["WARLOCK"]     = Enum.PowerType.Mana,
             ["WARRIOR"]     = Enum.PowerType.Rage,
         }
+
+        local spec = GetSpecialization()
+        local specID = GetSpecializationInfo(spec)
 
         -- Druid: form-based
         if playerClass == "DRUID" then
@@ -189,7 +196,11 @@ barConfigs.primary = {
             end
         end
 
-        return classResources[playerClass]
+        if type(primaryResources[playerClass]) == "table" then
+            return primaryResources[playerClass][specID]
+        else 
+            return primaryResources[playerClass]
+        end
     end,
     getValue = function(resource, config, data)
         if not resource then return nil, nil, nil, nil end
@@ -237,7 +248,7 @@ barConfigs.secondary = {
         tickWidth = 1,
     },
     getResource = function()
-        local class = select(2, UnitClass("player"))
+        local playerClass = select(2, UnitClass("player"))
         local secondaryResources = {
             ["DEATHKNIGHT"] = Enum.PowerType.Runes,
             ["DEMONHUNTER"] = nil,
@@ -267,7 +278,7 @@ barConfigs.secondary = {
         local specID = GetSpecializationInfo(spec)
 
         -- Druid: form-based
-        if class == "DRUID" then
+        if playerClass == "DRUID" then
             local form = GetShapeshiftFormID()
             if form == 1 then -- Cat form
                 return Enum.PowerType.ComboPoints
@@ -276,7 +287,11 @@ barConfigs.secondary = {
             end
         end
 
-        return type(secondaryResources[class]) == "table" and secondaryResources[class][specID] or secondaryResources[class]
+        if type(secondaryResources[playerClass]) == "table" then
+            return secondaryResources[playerClass][specID]
+        else 
+            return secondaryResources[playerClass]
+        end
     end,
     getValue = function(resource, config, data)
         if not resource then return nil, nil, nil, nil end
@@ -617,7 +632,7 @@ local function CreateBarInstance(config, parent)
 
         local resource = self.config.getResource()
         if not resource then
-            if not self._inEditMode then
+            if not LEM:IsInEditMode() then
                 self:Hide()
             else 
                 -- White bar, "0" text for edit mode is resource does not exist (e.g. Secondary resource for warrior)
@@ -631,7 +646,7 @@ local function CreateBarInstance(config, parent)
 
         local max, current, displayValue, valueType = self.config.getValue(resource, self.config, data)
         if not max then
-            if not self._inEditMode then
+            if not LEM:IsInEditMode() then
                 self:Hide()
             end
             return
@@ -737,7 +752,7 @@ local function CreateBarInstance(config, parent)
         end
 
         -- Arbitrarily show 4 ticks for edit mode for preview, if spec does not support it
-        if self._inEditMode and data.showTicks == true and resource ~= "STAGGER" and not tickedPowerTypes[resource] then
+        if LEM:IsInEditMode() and data.showTicks == true and resource ~= "STAGGER" and not tickedPowerTypes[resource] then
             max = 5
             resource = Enum.PowerType.ComboPoints
         end
@@ -826,7 +841,7 @@ local function CreateBarInstance(config, parent)
         if not data then return end
 
         -- Don't hide while in edit mode
-        if self._inEditMode then
+        if LEM:IsInEditMode() then
             self:Show()
             return
         end
@@ -890,52 +905,35 @@ local function CreateBarInstance(config, parent)
         self:SetScript("OnUpdate", nil)
     end
 
-    function frame:InitCooldownManagerWidthHook(layoutName)
-        layoutName = layoutName or LEM.GetActiveLayoutName() or "Default"
-        local data = SenseiClassResourceBarDB[self.config.dbName][layoutName]
-
+    function frame:InitCooldownManagerWidthHook()
         local v = _G["EssentialCooldownViewer"]
-        if v and not (v._SCRB_Essential_hooked and v._SCRB_Essential_hooked[self.config.dbName] or false) then
+        if v and not (self._SCRB_Essential_hooked or false) then
             v:HookScript("OnSizeChanged", function()
-                if data.widthMode == "Sync With Essential Cooldowns" then
-                    self:ApplyLayout(layoutName)
-                end
+                self:ApplyLayout()
             end)
             v:HookScript("OnShow", function()
-                if data.widthMode == "Sync With Essential Cooldowns" then
-                    self:ApplyLayout(layoutName)
-                end
+                self:ApplyLayout()
             end)
             v:HookScript("OnHide", function()
-                if data.widthMode == "Sync With Essential Cooldowns" then
-                    self:ApplyLayout(layoutName)
-                end
+                self:ApplyLayout()
             end)
 
-            v._SCRB_Essential_hooked = v._SCRB_Essential_hooked or {}
-            v._SCRB_Essential_hooked[self.config.dbName] = true
+            self._SCRB_Essential_hooked = true
         end
 
         v = _G["UtilityCooldownViewer"]
-        if v and not (v._SCRB_Utility_hooked and v._SCRB_Utility_hooked[self.config.dbName] or false) then
+        if v and not (self._SCRB_Utility_hooked or false) then
             v:HookScript("OnSizeChanged", function(_, width)
-                if data.widthMode == "Sync With Utility Cooldowns" then
-                    self:ApplyLayout(layoutName)
-                end
+                self:ApplyLayout()
             end)
             v:HookScript("OnShow", function()
-                if data.widthMode == "Sync With Utility Cooldowns" then
-                    self:ApplyLayout(layoutName)
-                end
+                self:ApplyLayout()
             end)
             v:HookScript("OnHide", function()
-                if data.widthMode == "Sync With Utility Cooldowns" then
-                    self:ApplyLayout(layoutName)
-                end
+                self:ApplyLayout()
             end)
 
-            v._SCRB_Utility_hooked = v._SCRB_Utility_hooked or {}
-            v._SCRB_Utility_hooked[self.config.dbName] = true
+            self._SCRB_Utility_hooked = true
         end
     end
 
@@ -1011,7 +1009,6 @@ local function CreateBarInstance(config, parent)
     -- EVENTS
     local playerClass = select(2, UnitClass("player"))
     
-    frame:RegisterEvent("PLAYER_LOGIN")
     frame:RegisterEvent("PLAYER_ENTERING_WORLD")
     frame:RegisterEvent("UNIT_POWER_UPDATE")
     frame:RegisterEvent("UNIT_MAXPOWER")
@@ -1027,11 +1024,7 @@ local function CreateBarInstance(config, parent)
     end
 
     frame:SetScript("OnEvent", function(self, event, arg1)
-        if event == "PLAYER_LOGIN" then
-
-            self:InitCooldownManagerWidthHook()
-
-        elseif event == "PLAYER_ENTERING_WORLD"
+        if event == "PLAYER_ENTERING_WORLD"
             or event == "UPDATE_SHAPESHIFT_FORM"
             or event == "PLAYER_SPECIALIZATION_CHANGED" then
 
@@ -1343,14 +1336,12 @@ local function InitializeBar(config)
     end
 
     LEM:RegisterCallback("enter", function()
-        frame._inEditMode = true
         frame:ApplyLayout()
         frame:ApplyVisibilitySettings()
         frame:UpdateDisplay()
     end)
 
     LEM:RegisterCallback("exit", function()
-        frame._inEditMode = false
         frame:ApplyLayout()
         frame:ApplyVisibilitySettings()
         frame:UpdateDisplay()
@@ -1358,10 +1349,28 @@ local function InitializeBar(config)
 
     LEM:RegisterCallback("layout", function(layoutName)
         SenseiClassResourceBarDB[config.dbName][layoutName] = SenseiClassResourceBarDB[config.dbName][layoutName] or CopyTable(defaults)
-        frame:ApplyLayout()
-        frame:ApplyVisibilitySettings()
-        frame:UpdateDisplay()
+        frame:InitCooldownManagerWidthHook()
+        frame:ApplyLayout(layoutName)
+        frame:ApplyVisibilitySettings(layoutName)
+        frame:UpdateDisplay(layoutName)
     end)
+
+    -- LEM:RegisterCallback("rename", function(oldLayoutName, newLayoutName)
+    --     SenseiClassResourceBarDB[config.dbName][newLayoutName] = CopyTable(SenseiClassResourceBarDB[config.dbName][oldLayoutName])
+    --     SenseiClassResourceBarDB[config.dbName] = SenseiClassResourceBarDB[config.dbName] or {}
+    --     SenseiClassResourceBarDB[config.dbName].remove(oldLayoutName)
+    --     frame:ApplyLayout()
+    --     frame:ApplyVisibilitySettings()
+    --     frame:UpdateDisplay()
+    -- end)
+
+    -- LEM:RegisterCallback("delete", function(layoutName)
+    --     SenseiClassResourceBarDB[config.dbName] = SenseiClassResourceBarDB[config.dbName] or {}
+    --     SenseiClassResourceBarDB[config.dbName].remove(layoutName)
+    --     frame:ApplyLayout()
+    --     frame:ApplyVisibilitySettings()
+    --     frame:UpdateDisplay()
+    -- end)
 
     LEM:AddFrame(frame, OnPositionChanged, defaults)
     LEM:AddFrameSettings(frame, BuildLemSettings(config, frame))
