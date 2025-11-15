@@ -5,6 +5,64 @@ if not SenseiClassResourceBarDB then
 end
 
 ------------------------------------------------------------
+-- LIBSHAREDMEDIA INTEGRATION
+------------------------------------------------------------
+local LSM = LibStub("LibSharedMedia-3.0")
+
+-- Quick implementation in case LSM breaks
+if LSM == nil then
+    LSM = {}
+    LSM.MediaType = {}
+    LSM.MediaType.BACKGROUND = "background"
+    LSM.MediaType.BORDER = "border"
+    LSM.MediaType.FONT = "font"
+    LSM.MediaType.STATUSBAR = "statusbar"
+    LSM.MediaType.SOUND = "sound"
+
+    function LSM:Register(mediaType, key, data, _)
+        self.fallbackResources = self.fallbackResources or {}
+        self.fallbackResources[mediaType] = self.fallbackResources[mediaType] or {}
+        self.fallbackResources[mediaType][key] = self.fallbackResources[mediaType][key] or {}
+        self.fallbackResources[mediaType][key] = data
+    end
+
+    function LSM:Fetch(mediatype, key)
+        local mtt = self.fallbackResources and self.fallbackResources[mediatype]
+        local result = mtt and mtt[key] or nil
+        return (result ~= "" and result) or nil
+    end
+
+    function LSM:IsValid(mediatype, key)
+        return self.fallbackResources[mediatype] and (not key or self.fallbackResources[mediatype][key]) and true or false
+    end
+
+    function LSM:HashTable(mediatype)
+        return self.fallbackResources[mediatype]
+    end
+end
+
+local function InitLSM()
+    LSM:Register(LSM.MediaType.BACKGROUND, "SCRB BG Bevelled", [[Interface\AddOns\SenseiClassResourceBar\Textures\BarBackgrounds\bevelled.png]])
+    LSM:Register(LSM.MediaType.BACKGROUND, "SCRB BG Bevelled Grey", [[Interface\AddOns\SenseiClassResourceBar\Textures\BarBackgrounds\bevelled-grey.png]])
+    
+    LSM:Register(LSM.MediaType.STATUSBAR, "SCRB FG Fade Left", [[Interface\AddOns\SenseiClassResourceBar\Textures\BarForegrounds\fade-left.png]])
+    LSM:Register(LSM.MediaType.STATUSBAR, "SCRB FG Fade Bottom", [[Interface\AddOns\SenseiClassResourceBar\Textures\BarForegrounds\fade-bottom.png]])
+    LSM:Register(LSM.MediaType.STATUSBAR, "SCRB FB Fade Top", [[Interface\AddOns\SenseiClassResourceBar\Textures\BarForegrounds\fade-top.png]])
+    LSM:Register(LSM.MediaType.STATUSBAR, "SCRB FB Solid", [[Interface\AddOns\SenseiClassResourceBar\Textures\BarForegrounds\solid.png]])
+
+    LSM:Register(LSM.MediaType.BORDER, "SCRB Border Thin", [[Interface\AddOns\SenseiClassResourceBar\Textures\BarBorders\thin.png]])
+    LSM:Register(LSM.MediaType.BORDER, "SCRB Border Bold", [[Interface\AddOns\SenseiClassResourceBar\Textures\BarBorders\bold.png]])
+    LSM:Register(LSM.MediaType.BORDER, "SCRB Border Slight", [[Interface\AddOns\SenseiClassResourceBar\Textures\BarBorders\slight.png]])
+    LSM:Register(LSM.MediaType.BORDER, "SCRB Border Blizzard Classic", [[Interface\AddOns\SenseiClassResourceBar\Textures\BarBorders\blizzard-classic.png]])
+
+    LSM:Register(LSM.MediaType.FONT, "Friz Quadrata TT", [[Fonts\FRIZQT___CYR.TTF]])
+    LSM:Register(LSM.MediaType.FONT, "Morpheus", [[Fonts\MORPHEUS_CYR.TTF]])
+    LSM:Register(LSM.MediaType.FONT, "Arial Narrow", [[Fonts\ARIALN.TTF]])
+    LSM:Register(LSM.MediaType.FONT, "Skurri", [[Fonts\SKURRI_CYR.TTF]])
+end
+InitLSM()
+
+------------------------------------------------------------
 -- LIBEDITMODE INTEGRATION
 ------------------------------------------------------------
 local LEM = LibStub("LibEditMode")
@@ -24,13 +82,13 @@ local commonDefaults = {
     smoothProgress = true,
     showText = true,
     showFragmentedPowerBarText = false,
-    font = "Fonts\\FRIZQT__.TTF",
+    font = LSM:Fetch(LSM.MediaType.FONT, "Friz Quadrata TT"),
     fontSize = 12,
     fontOutline = "OUTLINE",
     textAlign = "CENTER",
     maskAndBorderStyle = "Thin",
-    backgroundStyle = "Semi-transparent",
-    foregroundStyle = "Fade Left",
+    backgroundStyle = "SCRB Semi-transparent",
+    foregroundStyle = "SCRB FG Fade Left",
 }
 
 -- Available bar visibility options
@@ -46,14 +104,6 @@ local availableWidthModes = {
     { text = "Manual", isRadio = true },
     { text = "Sync With Essential Cooldowns", isRadio = true },
     { text = "Sync With Utility Cooldowns", isRadio = true },
-}
-
--- Available font styles
-local fontStyles = {
-    { text = "Fonts\\FRIZQT__.TTF", isRadio = true },
-    { text = "Fonts\\ARIALN.TTF", isRadio = true },
-    { text = "Fonts\\MORPHEUS.TTF", isRadio = true },
-    { text = "Fonts\\SKURRI.TTF", isRadio = true },
 }
 
 -- Available outline styles
@@ -73,20 +123,20 @@ local availableTextAlignmentStyles = {
 -- Available mask and border styles
 local maskAndBorderStyles = {
     ["Thin"] = {
-        mask = "Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarBorders\\thin-mask.png",
-        border = "Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarBorders\\thin.png",
+        mask = [[Interface\AddOns\SenseiClassResourceBar\Textures\BarBorders\thin-mask.png]],
+        border = LSM:Fetch(LSM.MediaType.BORDER, "SCRB Border Thin"),
     },
     ["Bold"] = {
-        mask = "Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarBorders\\bold-mask.png",
-        border = "Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarBorders\\bold.png",
+        mask = [[Interface\AddOns\SenseiClassResourceBar\Textures\BarBorders\bold-mask.png]],
+        border = LSM:Fetch(LSM.MediaType.BORDER, "SCRB Border Bold"),
     },
     ["Slight"] = {
-        mask = "Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarBorders\\slight-mask.png",
-        border = "Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarBorders\\slight.png",
+        mask = [[Interface\AddOns\SenseiClassResourceBar\Textures\BarBorders\slight-mask.png]],
+        border = LSM:Fetch(LSM.MediaType.BORDER, "SCRB Border Slight"),
     },
     ["Blizzard Classic"] = {
-        mask = "Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarBorders\\blizzard-classic-mask.png",
-        border = "Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarBorders\\blizzard-classic.png",
+        mask = [[Interface\AddOns\SenseiClassResourceBar\Textures\BarBorders\blizzard-classic-mask.png]],
+        border = LSM:Fetch(LSM.MediaType.BORDER, "SCRB Border Blizzard Classic"),
     },
     -- Add more styles here as needed
     -- ["style-name"] = {
@@ -102,27 +152,12 @@ end
 
 -- Available background styles
 local backgroundStyles = {
-    ["Semi-transparent"] = { type = "color", r = 0, g = 0, b = 0, a = 0.5 },
-    ["Solid Light Grey"] = { type = "texture", value = "Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarBackgrounds\\bevelled.png" },
-    ["Solid Dark Grey"] = { type = "texture", value = "Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarBackgrounds\\bevelled-grey.png" },
+    ["SCRB Semi-transparent"] = { type = "color", r = 0, g = 0, b = 0, a = 0.5 },
 }
 
 local availableBackgroundStyles = {}
 for name, _ in pairs(backgroundStyles) do
-    table.insert(availableBackgroundStyles, { text = name, isRadio = true })
-end
-
--- Available foreground styles
-local foregroundStyles = {
-    ["Fade Left"] = "Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarForegrounds\\fade-left.png",
-    ["Fade Top"] = "Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarForegrounds\\fade-top.png",
-    ["Fade Bottom"] = "Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarForegrounds\\fade-bottom.png",
-    ["Solid"] = "Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarForegrounds\\solid.png",
-}
-
-local availableForegroundStyles = {}
-for name, _ in pairs(foregroundStyles) do
-    table.insert(availableForegroundStyles, { text = name, isRadio = true })
+    table.insert(availableBackgroundStyles, name)
 end
 
 -- Power types that should show discrete ticks
@@ -415,13 +450,13 @@ local function CreateBarInstance(config, parent)
     -- STATUS BAR
     frame.statusBar = CreateFrame("StatusBar", nil, frame)
     frame.statusBar:SetAllPoints()
-    frame.statusBar:SetStatusBarTexture("Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarForegrounds\\fade-left.png")
+    frame.statusBar:SetStatusBarTexture(LSM:Fetch(LSM.MediaType.STATUSBAR, "SCRB FG Fade Left"))
     frame.statusBar:SetFrameLevel(1)
 
     -- MASK
     frame.mask = frame.statusBar:CreateMaskTexture()
     frame.mask:SetAllPoints()
-    frame.mask:SetTexture("Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarBorders\\thin-mask.png")
+    frame.mask:SetTexture([[Interface\AddOns\SenseiClassResourceBar\Textures\BarBorders\thin-mask.png]])
 
     frame.statusBar:GetStatusBarTexture():AddMaskTexture(frame.mask)
     frame.background:AddMaskTexture(frame.mask)
@@ -429,7 +464,7 @@ local function CreateBarInstance(config, parent)
     -- BORDER
     frame.border = frame:CreateTexture(nil, "OVERLAY")
     frame.border:SetAllPoints()
-    frame.border:SetTexture("Interface\\AddOns\\SenseiClassResourceBar\\Textures\\BarBorders\\thin.png")
+    frame.border:SetTexture(LSM:Fetch(LSM.MediaType.BORDER, "SCRB Border Thin"))
     frame.border:SetBlendMode("BLEND")
     frame.border:SetVertexColor(0, 0, 0)
 
@@ -448,7 +483,7 @@ local function CreateBarInstance(config, parent)
     frame.updateInterval = 0.05
     frame.elapsed = 0
 
-    -- Fragmented powers (Runes, Essences, Soul Shards) specific visual elements
+    -- Fragmented powers (Runes, Essences) specific visual elements
     frame.fragmentedPowerBars = {}
     frame.fragmentedPowerBarTexts = {}
 
@@ -471,7 +506,7 @@ local function CreateBarInstance(config, parent)
                 local bar = CreateFrame("StatusBar", nil, self)
 
                 local fgStyleName = data.foregroundStyle or defaults.foregroundStyle
-                local fgTexture = foregroundStyles[fgStyleName]
+                local fgTexture = LSM:Fetch(LSM.MediaType.STATUSBAR, fgStyleName)
                 
                 if fgTexture then
                     bar:SetStatusBarTexture(fgTexture)
@@ -682,8 +717,9 @@ local function CreateBarInstance(config, parent)
         local font = data.font or defaults.font
         local size = data.fontSize or defaults.fontSize
         local outline = data.fontOutline or defaults.fontOutline
+        local scale = data.scale or defaults.scale
 
-        self.textValue:SetFont(font, size, outline)
+        self.textValue:SetFont(font, size * scale, outline)
         self.textValue:SetShadowColor(0, 0, 0, 0.8)
         self.textValue:SetShadowOffset(1, -1)
 
@@ -801,7 +837,7 @@ local function CreateBarInstance(config, parent)
         end
 
         local bgStyleName = data.backgroundStyle or defaults.backgroundStyle
-        local bgConfig = backgroundStyles[bgStyleName]
+        local bgConfig = backgroundStyles[bgStyleName] or (LSM:IsValid(LSM.MediaType.BACKGROUND, bgStyleName) and { type = "texture", value = LSM:Fetch(LSM.MediaType.BACKGROUND, bgStyleName) }) or nil
 
         if not bgConfig then return end
 
@@ -824,7 +860,7 @@ local function CreateBarInstance(config, parent)
         end
 
         local fgStyleName = data.foregroundStyle or defaults.foregroundStyle
-        local fgTexture = foregroundStyles[fgStyleName]
+        local fgTexture = LSM:Fetch(LSM.MediaType.STATUSBAR, fgStyleName)
         
         if fgTexture then
             frame.statusBar:SetStatusBarTexture(fgTexture)
@@ -1192,7 +1228,64 @@ local function BuildLemSettings(config, frame)
             name = "Font Face",
             kind = LEM.SettingType.Dropdown,
             default = defaults.font,
-            values = fontStyles,
+            generator = function(dropdown, rootDescription, settingObject)
+                dropdown.fontPool = {}
+
+                local layoutName = LEM.GetActiveLayoutName() or "Default"
+                local data = SenseiClassResourceBarDB[frame.config.dbName][layoutName]
+                if not data then return end
+
+                if not dropdown._SCRB_FontFace_Dropdown_OnMenuClosed_hooked then
+                    hooksecurefunc(dropdown, "OnMenuClosed", function() 
+                        for _, fontDisplay in pairs(dropdown.fontPool) do
+                            fontDisplay:Hide()
+                        end
+                    end)
+                    dropdown._SCRB_FontFace_Dropdown_OnMenuClosed_hooked = true
+                end
+
+                local fonts = LSM:HashTable(LSM.MediaType.FONT)
+                local sortedFonts = {}
+                for fontName in pairs(fonts) do
+                    table.insert(sortedFonts, fontName)
+                end
+                table.sort(sortedFonts)
+
+                local maxVisibleItems = 25
+                local itemHeight = 20
+                local maxScrollExtent = maxVisibleItems * itemHeight
+                rootDescription:SetScrollMode(maxScrollExtent)
+
+                for index, fontName in ipairs(sortedFonts) do
+                    local fontPath = fonts[fontName]
+
+                    local button = rootDescription:CreateRadio(fontName, function(d)
+                        return d.get(layoutName) == d.value
+                    end, function(d)
+                        d.set(layoutName, d.value)
+                    end, {
+                        get = settingObject.get,
+                        set = settingObject.set,
+                        value = fontPath
+                    })
+
+                    button:AddInitializer(function(self)
+                        local fontDisplay = dropdown.fontPool[index]
+                        if not fontDisplay then
+                            fontDisplay = dropdown:CreateFontString(nil, "BACKGROUND")
+                            dropdown.fontPool[index] = fontDisplay
+                        end
+
+                        self.fontString:Hide()
+
+                        fontDisplay:SetParent(self)
+                        fontDisplay:SetPoint("LEFT", self.fontString, "LEFT", 0, 0)
+                        fontDisplay:SetFont(fontPath, 12)
+                        fontDisplay:SetText(fontName)
+                        fontDisplay:Show()
+                    end)
+                end
+            end,
             get = function(layoutName)
                 return (SenseiClassResourceBarDB[config.dbName][layoutName] and SenseiClassResourceBarDB[config.dbName][layoutName].font) or defaults.font
             end,
@@ -1207,8 +1300,8 @@ local function BuildLemSettings(config, frame)
             name = "Font Size",
             kind = LEM.SettingType.Slider,
             default = defaults.fontSize,
-            minValue = 8,
-            maxValue = 24,
+            minValue = 5,
+            maxValue = 50,
             valueStep = 1,
             get = function(layoutName)
                 local data = SenseiClassResourceBarDB[config.dbName][layoutName]
@@ -1270,7 +1363,61 @@ local function BuildLemSettings(config, frame)
             name = "Background",
             kind = LEM.SettingType.Dropdown,
             default = defaults.backgroundStyle,
-            values = availableBackgroundStyles,
+            generator = function(dropdown, rootDescription, settingObject)
+                dropdown.texturePool = {}
+
+                local layoutName = LEM.GetActiveLayoutName() or "Default"
+                local data = SenseiClassResourceBarDB[frame.config.dbName][layoutName]
+                if not data then return end
+
+                if not dropdown._SCRB_Background_Dropdown_OnMenuClosed_hooked then
+                    hooksecurefunc(dropdown, "OnMenuClosed", function() 
+                        for _, texture in pairs(dropdown.texturePool) do
+                            texture:Hide()
+                        end
+                    end)
+                    dropdown._SCRB_Background_Dropdown_OnMenuClosed_hooked = true
+                end
+
+                dropdown:SetDefaultText(settingObject.get(layoutName))
+
+                local textures = LSM:HashTable(LSM.MediaType.BACKGROUND)
+                local sortedTextures = CopyTable(availableBackgroundStyles)
+                for textureName in pairs(textures) do
+                    table.insert(sortedTextures, textureName)
+                end
+                table.sort(sortedTextures)
+
+                local maxVisibleItems = 25
+                local itemHeight = 20
+                local maxScrollExtent = maxVisibleItems * itemHeight
+                rootDescription:SetScrollMode(maxScrollExtent)
+
+                for index, textureName in ipairs(sortedTextures) do
+                    local texturePath = textures[textureName]
+
+                    local button = rootDescription:CreateButton(textureName, function()
+                        dropdown:SetDefaultText(textureName)
+                        settingObject.set(layoutName, textureName)
+                    end)
+
+                    if texturePath then
+                        button:AddInitializer(function(self)
+                            local textureBackground = dropdown.texturePool[index]
+                            if not textureBackground then
+                                textureBackground = dropdown:CreateTexture(nil, "BACKGROUND")
+                                dropdown.texturePool[index] = textureBackground
+                            end
+
+                            textureBackground:SetParent(self)
+                            textureBackground:SetAllPoints(self)
+                            textureBackground:SetTexture(texturePath)
+
+                            textureBackground:Show()
+                        end)
+                    end
+                end
+            end,
             get = function(layoutName)
                 return (SenseiClassResourceBarDB[config.dbName][layoutName] and SenseiClassResourceBarDB[config.dbName][layoutName].backgroundStyle) or defaults.backgroundStyle
             end,
@@ -1285,7 +1432,61 @@ local function BuildLemSettings(config, frame)
             name = "Foreground",
             kind = LEM.SettingType.Dropdown,
             default = defaults.foregroundStyle,
-            values = availableForegroundStyles,
+            generator = function(dropdown, rootDescription, settingObject)
+                dropdown.texturePool = {}
+
+                local layoutName = LEM.GetActiveLayoutName() or "Default"
+                local data = SenseiClassResourceBarDB[frame.config.dbName][layoutName]
+                if not data then return end
+
+                if not dropdown._SCRB_Foreground_Dropdown_OnMenuClosed_hooked then
+                    hooksecurefunc(dropdown, "OnMenuClosed", function() 
+                        for _, texture in pairs(dropdown.texturePool) do
+                            texture:Hide()
+                        end
+                    end)
+                    dropdown._SCRB_Foreground_Dropdown_OnMenuClosed_hooked = true
+                end
+
+                dropdown:SetDefaultText(settingObject.get(layoutName))
+
+                local textures = LSM:HashTable(LSM.MediaType.STATUSBAR)
+                local sortedTextures = {}
+                for textureName in pairs(textures) do
+                    table.insert(sortedTextures, textureName)
+                end
+                table.sort(sortedTextures)
+
+                local maxVisibleItems = 25
+                local itemHeight = 20
+                local maxScrollExtent = maxVisibleItems * itemHeight
+                rootDescription:SetScrollMode(maxScrollExtent)
+
+                for index, textureName in ipairs(sortedTextures) do
+                    local texturePath = textures[textureName]
+
+                    local button = rootDescription:CreateButton(textureName, function()
+                        dropdown:SetDefaultText(textureName)
+                        settingObject.set(layoutName, textureName)
+                    end)
+
+                    if texturePath then
+                        button:AddInitializer(function(self)
+                            local textureStatusBar = dropdown.texturePool[index]
+                            if not textureStatusBar then
+                                textureStatusBar = dropdown:CreateTexture(nil, "BACKGROUND")
+                                dropdown.texturePool[index] = textureStatusBar
+                            end
+
+                            textureStatusBar:SetParent(self)
+                            textureStatusBar:SetAllPoints(self)
+                            textureStatusBar:SetTexture(texturePath)
+
+                            textureStatusBar:Show()
+                        end)
+                    end
+                end
+            end,
             get = function(layoutName)
                 return (SenseiClassResourceBarDB[config.dbName][layoutName] and SenseiClassResourceBarDB[config.dbName][layoutName].foregroundStyle) or defaults.foregroundStyle
             end,

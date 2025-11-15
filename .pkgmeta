@@ -8,3 +8,4 @@ externals:
   Libs/LibEditMode:
     url: https://github.com/p3lim-wow/LibEditMode
     tag: 10
+  Libs/LibSharedMedia-3.0: https://repos.wowace.com/wow/libsharedmedia-3-0/trunk/LibSharedMedia-3.0
