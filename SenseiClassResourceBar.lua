@@ -282,6 +282,7 @@ barConfigs.secondary = {
         point = "CENTER",
         x = 0,
         y = -40,
+        hideBlizzardSecondaryResourceUi = false,
         showTicks = true,
         tickWidth = 1,
     },
@@ -386,6 +387,25 @@ barConfigs.secondary = {
     lemSettings = function(dbName, defaults, frame)
         return {
             {
+                order = 2,
+                name = "Hide Blizzard UI",
+                kind = LEM.SettingType.Checkbox,
+                default = defaults.hideBlizzardSecondaryResourceUi,
+                get = function(layoutName)
+                    local data = SenseiClassResourceBarDB[dbName][layoutName]
+                    if data and data.hideBlizzardSecondaryResourceUi ~= nil then
+                        return data.hideBlizzardSecondaryResourceUi
+                    else
+                        return defaults.hideBlizzardSecondaryResourceUi
+                    end
+                end,
+                set = function(layoutName, value)
+                    SenseiClassResourceBarDB[dbName][layoutName] = SenseiClassResourceBarDB[dbName][layoutName] or CopyTable(defaults)
+                    SenseiClassResourceBarDB[dbName][layoutName].hideBlizzardSecondaryResourceUi = value
+                    frame:HideBlizzardSecondaryResource(layoutName)
+                end,
+            },
+            {
                 order = 41,
                 name = "Show Resource Charge Timer (e.g. Runes)",
                 kind = LEM.SettingType.Checkbox,
@@ -454,6 +474,7 @@ barConfigs.healthBar = {
         x = 0,
         y = 40,
         barVisible = "Hidden",
+        hideBlizzardPlayerContainerUi = false,
         useClassColor = true,
     },
     getResource = function()
@@ -480,6 +501,25 @@ barConfigs.healthBar = {
     end,
     lemSettings = function(dbName, defaults, frame)
         return {
+            {
+                order = 2,
+                name = "Hide Blizzard UI",
+                kind = LEM.SettingType.Checkbox,
+                default = defaults.hideBlizzardPlayerContainerUi,
+                get = function(layoutName)
+                    local data = SenseiClassResourceBarDB[dbName][layoutName]
+                    if data and data.hideBlizzardPlayerContainerUi ~= nil then
+                        return data.hideBlizzardPlayerContainerUi
+                    else
+                        return defaults.hideBlizzardPlayerContainerUi
+                    end
+                end,
+                set = function(layoutName, value)
+                    SenseiClassResourceBarDB[dbName][layoutName] = SenseiClassResourceBarDB[dbName][layoutName] or CopyTable(defaults)
+                    SenseiClassResourceBarDB[dbName][layoutName].hideBlizzardPlayerContainerUi = value
+                    frame:HideBlizzardPlayerContainer(layoutName)
+                end,
+            },
             {
                 order = 63,
                 name = "Use Class Color",
@@ -963,7 +1003,6 @@ local function CreateBarInstance(config, parent)
             return
         end
 
-
         if data.barVisible == "Always Visible" then
             self:Show()
         elseif data.barVisible == "Hidden" then
@@ -993,6 +1032,8 @@ local function CreateBarInstance(config, parent)
         end
 
         self:ApplyTextVisibilitySettings(layoutName)
+        self:HideBlizzardPlayerContainer(layoutName)
+        self:HideBlizzardSecondaryResource(layoutName)
     end
 
     function frame:ApplyTextVisibilitySettings(layoutName)
@@ -1006,6 +1047,44 @@ local function CreateBarInstance(config, parent)
             fragmentedPowerBarText:SetShown(data.showFragmentedPowerBarText ~= false)
         end
     end
+
+    function frame:HideBlizzardPlayerContainer(layoutName)
+        layoutName = layoutName or LEM.GetActiveLayoutName() or "Default"
+        local data = SenseiClassResourceBarDB[self.config.dbName][layoutName]
+        if not data then return end
+
+        if data.hideBlizzardPlayerContainerUi == nil then return end
+
+        if PlayerFrame then
+            PlayerFrame.PlayerFrameContainer:SetAlpha(data.hideBlizzardPlayerContainerUi and 0 or 1)
+            PlayerFrame.PlayerFrameContent:SetAlpha(data.hideBlizzardPlayerContainerUi and 0 or 1)
+        end
+    end
+    
+    function frame:HideBlizzardSecondaryResource(layoutName)
+        layoutName = layoutName or LEM.GetActiveLayoutName() or "Default"
+        local data = SenseiClassResourceBarDB[self.config.dbName][layoutName]
+        if not data then return end
+
+        if data.hideBlizzardSecondaryResourceUi == nil then return end
+        
+        local blizzardResourceFrames = {
+            DruidComboPointBarFrame,
+            EssencePlayerFrame,
+            MageArcaneChargesFrame,
+            PaladinPowerBarFrame,
+            RogueComboPointBarFrame,
+            RuneFrame,
+            WarlockPowerFrame,
+        }
+
+        for _, k in ipairs(blizzardResourceFrames) do
+            if k then
+                k:SetAlpha(data.hideBlizzardSecondaryResourceUi and 0 or 1)
+            end
+        end
+    end
+
 
     function frame:EnableSmoothProgress()
         self.smoothEnabled = true
