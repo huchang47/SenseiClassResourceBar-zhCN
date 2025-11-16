@@ -786,9 +786,18 @@ local function CreateBarInstance(config, parent)
 
     function frame:GetResourceColor(resource)
         local color = nil
+        
+        local powerName = nil
+        for name, value in pairs(Enum.PowerType) do
+            if value == resource then
+                -- LunarPower -> LUNAR_POWER
+                powerName = name:gsub("(%u)", "_%1"):gsub("^_", ""):upper()
+                break;
+            end
+        end
 
         if resource == "STAGGER" then
-            color = { r = 0.5216, g = 1.0, b = 0.5216 }
+            color = GetPowerBarColor("STAGGER").green
         elseif resource == "SOUL" then
             -- Different color during Void Metamorphosis
             if DemonHunterSoulFragmentsBar and DemonHunterSoulFragmentsBar.CollapsingStarBackground:IsShown() then
@@ -809,10 +818,15 @@ local function CreateBarInstance(config, parent)
             end
             -- Else fallback on Blizzard Runes color, grey...
         elseif resource == Enum.PowerType.Essence then
-            color = { r = 0.0, g = 0.55, b = 0.50 }
+            color = GetPowerBarColor("FUEL")
+        elseif resource == Enum.PowerType.ComboPoints then
+            color = { r = 0.878, g = 0.176, b = 0.180 }
+        elseif resource == Enum.PowerType.Chi then
+            color = { r = 0.024, g = 0.741, b = 0.784 }
         end
 
-        return color or PowerBarColor[resource] or PowerBarColor["MANA"]
+        -- If not custum, try with power name or id
+        return color or GetPowerBarColor(powerName) or GetPowerBarColor(resource) or GetPowerBarColor("MANA")
     end
 
     function frame:UpdateDisplay(layoutName)
@@ -853,7 +867,7 @@ local function CreateBarInstance(config, parent)
 
         local color = self.config.getBarColor(resource, frame)
         self.statusBar:SetStatusBarColor(color.r, color.g, color.b)
-
+        
         if fragmentedPowerTypes[resource] then
             self:UpdateFragmentedPowerDisplay(layoutName)
         end
