@@ -113,9 +113,11 @@ local outlineStyles = {
 
 -- Available text alignement styles
 local availableTextAlignmentStyles = {
+    { text = "TOP", isRadio = true },
     { text = "LEFT", isRadio = true },
     { text = "CENTER", isRadio = true },
     { text = "RIGHT", isRadio = true },
+    { text = "BOTTOM", isRadio = true },
 }
 
 -- Available mask and border styles
@@ -860,16 +862,26 @@ local function CreateBarInstance(config, parent)
             fragmentedPowerBarText:SetShadowOffset(1, -1)
         end
 
-        -- Text alignment: LEFT, CENTER, RIGHT
+        -- Text alignment: LEFT, CENTER, RIGHT, TOP, BOTTOM
         local align = data.textAlign or defaults.textAlign or "CENTER"
+
+        if align == "LEFT" or align == "RIGHT" or align == "CENTER" then
         self.textValue:SetJustifyH(align)
+        else
+            self.textValue:SetJustifyH("CENTER") -- Top/Bottom center horizontally
+        end
+
         -- Re-anchor the text inside the text frame depending on alignment
         self.textValue:ClearAllPoints()
         if align == "LEFT" then
             self.textValue:SetPoint("LEFT", self.textFrame, "LEFT", 4, 0)
         elseif align == "RIGHT" then
             self.textValue:SetPoint("RIGHT", self.textFrame, "RIGHT", -4, 0)
-        else
+        elseif align == "TOP" then
+            self.textValue:SetPoint("TOP", self.textFrame, "TOP", 0, -4)
+        elseif align == "BOTTOM" then
+            self.textValue:SetPoint("BOTTOM", self.textFrame, "BOTTOM", 0, 4)
+        else -- Center
             self.textValue:SetPoint("CENTER", self.textFrame, "CENTER", 0, 0)
         end
     end
