@@ -1046,8 +1046,8 @@ local function CreateBarInstance(config, parent, frameLevel)
         return color or GetPowerBarColor(powerName) or GetPowerBarColor(resource) or { r = 1, g = 1, b = 1 }
     end
 
-    function frame:UpdateDisplay(layoutName)
-        if not self:IsShown() then return end
+    function frame:UpdateDisplay(layoutName, force)
+        if not self:IsShown() and not force then return end
 
         layoutName = layoutName or LEM.GetActiveLayoutName() or "Default"
         local data = SenseiClassResourceBarDB[self.config.dbName][layoutName]
@@ -1546,7 +1546,7 @@ local function CreateBarInstance(config, parent, frameLevel)
 
                 -- For some weird reasons, this is triggered with the scale or something ?
                 if (width == nil) or (type(width) == "number" and math.floor(width) > 1) then
-                    self:ApplyLayout()
+                    self:ApplyLayout(nil, true)
                 end
             end
 
@@ -1565,7 +1565,7 @@ local function CreateBarInstance(config, parent, frameLevel)
                 end
 
                 if (width == nil) or (type(width) == "number" and math.floor(width) > 1) then
-                    self:ApplyLayout()
+                    self:ApplyLayout(nil, true)
                 end
             end
 
@@ -1597,8 +1597,8 @@ local function CreateBarInstance(config, parent, frameLevel)
         return nil
     end
 
-    function frame:ApplyLayout(layoutName)
-        if not self:IsShown() then return end
+    function frame:ApplyLayout(layoutName, force)
+        if not self:IsShown() and not force then return end
 
         layoutName = layoutName or LEM.GetActiveLayoutName() or "Default"
         local data = SenseiClassResourceBarDB[self.config.dbName][layoutName]
