@@ -1275,7 +1275,10 @@ local function CreateBarInstance(config, parent, frameLevel)
 
         -- Hide any extra ticks
         for i = needed + 1, #self.ticks do
-            self.ticks[i]:Hide()
+            local t = self.ticks[i]
+            if t then
+                t:Hide()
+            end
         end
     end
 
