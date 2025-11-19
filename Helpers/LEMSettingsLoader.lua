@@ -489,13 +489,7 @@ function LEMSettingsLoaderMixin:Init(bar, defaults)
         bar:UpdateDisplay()
     end)
 
-    LEM:RegisterCallback("create", function(layoutName, a)
-        print(layoutName, 'create', a)
-
-    end)
-
-    LEM:RegisterCallback("layout", function(layoutName, a)
-        print(layoutName, 'lay', a)
+    LEM:RegisterCallback("layout", function(layoutName)
         SenseiClassResourceBarDB[config.dbName][layoutName] = SenseiClassResourceBarDB[config.dbName][layoutName] or CopyTable(defaults)
         bar:InitCooldownManagerWidthHook(layoutName)
         bar:ApplyVisibilitySettings(layoutName)
@@ -503,19 +497,15 @@ function LEMSettingsLoaderMixin:Init(bar, defaults)
         bar:UpdateDisplay(layoutName, true)
     end)
 
-    LEM:RegisterCallback("rename", function(oldLayoutName, newLayoutName, cx)
-        print(newLayoutName, 'ren', oldLayoutName, cx)
+    LEM:RegisterCallback("rename", function(oldLayoutName, newLayoutName)
         SenseiClassResourceBarDB[config.dbName][newLayoutName] = CopyTable(SenseiClassResourceBarDB[config.dbName][oldLayoutName])
-        SenseiClassResourceBarDB[config.dbName] = SenseiClassResourceBarDB[config.dbName] or {}
         SenseiClassResourceBarDB[config.dbName][oldLayoutName] = nil
         bar:ApplyVisibilitySettings()
         bar:ApplyLayout()
         bar:UpdateDisplay()
     end)
 
-    LEM:RegisterCallback("delete", function(layoutName, a)
-        
-        print(layoutName, 'de', a)
+    LEM:RegisterCallback("delete", function(layoutName)
         SenseiClassResourceBarDB[config.dbName] = SenseiClassResourceBarDB[config.dbName] or {}
         SenseiClassResourceBarDB[config.dbName][layoutName] = nil
         bar:ApplyVisibilitySettings()
