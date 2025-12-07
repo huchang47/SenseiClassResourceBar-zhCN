@@ -4,6 +4,8 @@ local LEM = addonTable.LEM or LibStub("LibEQOLEditMode-1.0")
 local LibSerialize = addonTable.LibSerialize or LibStub("LibSerialize")
 local LibDeflate = addonTable.LibDeflate or LibStub("LibDeflate")
 
+local EXPORT_VERSION = 1
+
 addonTable.updateBar = function(name)
     local bar = addonTable.barInstances[name]
     if not bar then return end
@@ -33,18 +35,28 @@ addonTable.fullUpdateBars = function()
     end
 end
 
-addonTable.exportProfileAsString = function()
-    local EXPORT_VERSION = 1
+addonTable.exportProfileAsString = function(includeBarSettings, includeAddonSettings)
+    local data = {
+        BARS = {},
+        GLOBAL = nil,
+    }
 
-    local data = {}
-    local layoutName = LEM.GetActiveLayoutName() or "Default"
-    for _, barSettings in pairs(addonTable.RegistereredBar or {}) do
-        if barSettings
-        and barSettings.dbName
-        and SenseiClassResourceBarDB
-        and SenseiClassResourceBarDB[barSettings.dbName]
-        and SenseiClassResourceBarDB[barSettings.dbName][layoutName] then
-            data[barSettings.dbName] = SenseiClassResourceBarDB[barSettings.dbName][layoutName] or nil
+    if includeBarSettings then
+        local layoutName = LEM.GetActiveLayoutName() or "Default"
+        for _, barSettings in pairs(addonTable.RegistereredBar or {}) do
+            if barSettings
+            and barSettings.dbName
+            and SenseiClassResourceBarDB
+            and SenseiClassResourceBarDB[barSettings.dbName]
+            and SenseiClassResourceBarDB[barSettings.dbName][layoutName] then
+                data.BARS[barSettings.dbName] = SenseiClassResourceBarDB[barSettings.dbName][layoutName] or nil
+            end
+        end
+    end
+
+    if includeAddonSettings then
+        if SenseiClassResourceBarDB and SenseiClassResourceBarDB["_Settings"] then
+            data.GLOBAL = SenseiClassResourceBarDB["_Settings"]
         end
     end
 
@@ -53,12 +65,15 @@ addonTable.exportProfileAsString = function()
     local encoded = LibDeflate:EncodeForPrint(compressed)
 
     return addonName .. ":" .. EXPORT_VERSION .. ":" .. encoded
-	end
+end
 
 addonTable.importProfileFromString = function(importString)
     local prefix, version, encoded = importString:match("^([^:]+):(%d+):(.+)$")
     if prefix ~= addonName then
         return nil, "This import string is not suitable for " .. addonName
+    end
+    if not version or version ~= tostring(EXPORT_VERSION) then
+        return nil, "This import string is meant for an older version of " .. addonName
     end
     if not encoded then
         return nil, "Invalid import string"
@@ -80,7 +95,7 @@ addonTable.importProfileFromString = function(importString)
     end
 
     local layoutName = LEM.GetActiveLayoutName() or "Default"
-    for dbName, barSettings in pairs(data) do
+    for dbName, barSettings in pairs(data.BARS or {}) do
         if not SenseiClassResourceBarDB then
             SenseiClassResourceBarDB = {}
         end
@@ -90,6 +105,14 @@ addonTable.importProfileFromString = function(importString)
         end
 
         SenseiClassResourceBarDB[dbName][layoutName] = barSettings
+    end
+
+    if data.GLOBAL then
+        if not SenseiClassResourceBarDB then
+            SenseiClassResourceBarDB = {}
+        end
+
+		SenseiClassResourceBarDB["_Settings"] = data.GLOBAL
     end
 
     return data

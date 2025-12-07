@@ -16,9 +16,69 @@ addonTable.FeaturesMetadata[featureId] = {
 addonTable.SettingsPanelInitializers = addonTable.SettingsPanelInitializers or {}
 addonTable.SettingsPanelInitializers[featureId] = function(category)
     SettingsLib:CreateButton(category, {
-		text = "Export",
+		text = "Export Only Power Colors",
 		func = function()
-			local exportString = addonTable.exportProfileAsString()
+			local exportString = addonTable.exportProfileAsString(false, true)
+			if not exportString then
+				addonTable.prettyPrint("Export failed.")
+				return
+			end
+			StaticPopupDialogs["SCRB_EXPORT_SETTINGS"] = StaticPopupDialogs["SCRB_EXPORT_SETTINGS"]
+				or {
+					text = "Export",
+					button1 = CLOSE,
+					hasEditBox = true,
+					editBoxWidth = 320,
+					timeout = 0,
+					whileDead = true,
+					hideOnEscape = true,
+					preferredIndex = 3,
+				}
+			StaticPopupDialogs["SCRB_EXPORT_SETTINGS"].OnShow = function(self)
+				self:SetFrameStrata("TOOLTIP")
+				local editBox = self.editBox or self:GetEditBox()
+				editBox:SetText(exportString)
+				editBox:HighlightText()
+				editBox:SetFocus()
+			end
+			StaticPopup_Show("SCRB_EXPORT_SETTINGS")
+		end,
+	})
+
+    SettingsLib:CreateButton(category, {
+		text = "Export With Power Colors",
+		func = function()
+			local exportString = addonTable.exportProfileAsString(true, true)
+			if not exportString then
+				addonTable.prettyPrint("Export failed.")
+				return
+			end
+			StaticPopupDialogs["SCRB_EXPORT_SETTINGS"] = StaticPopupDialogs["SCRB_EXPORT_SETTINGS"]
+				or {
+					text = "Export",
+					button1 = CLOSE,
+					hasEditBox = true,
+					editBoxWidth = 320,
+					timeout = 0,
+					whileDead = true,
+					hideOnEscape = true,
+					preferredIndex = 3,
+				}
+			StaticPopupDialogs["SCRB_EXPORT_SETTINGS"].OnShow = function(self)
+				self:SetFrameStrata("TOOLTIP")
+				local editBox = self.editBox or self:GetEditBox()
+				editBox:SetText(exportString)
+				editBox:HighlightText()
+				editBox:SetFocus()
+			end
+			StaticPopup_Show("SCRB_EXPORT_SETTINGS")
+		end,
+	})
+
+    SettingsLib:CreateButton(category, {
+		text = "Export Without Power Colors",
+		func = function()
+			local exportString = addonTable.exportProfileAsString(true, false)
 			if not exportString then
 				addonTable.prettyPrint("Export failed.")
 				return
