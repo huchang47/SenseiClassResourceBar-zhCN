@@ -22,6 +22,7 @@ local function InitLSM()
     LSM:Register(LSM.MediaType.STATUSBAR, "None", [[Interface\AddOns\SenseiClassResourceBar\Textures\Specials\transparent.png]])
 
     LSM:Register(LSM.MediaType.BORDER, "SCRB Border Blizzard Classic", [[Interface\AddOns\SenseiClassResourceBar\Textures\BarBorders\blizzard-classic.png]])
+    LSM:Register(LSM.MediaType.BORDER, "SCRB Border Blizzard Classic Thin", [[Interface\AddOns\SenseiClassResourceBar\Textures\BarBorders\blizzard-classic-thin.png]])
 
     LSM:Register(LSM.MediaType.FONT, "Friz Quadrata TT", [[Fonts\FRIZQT___CYR.TTF]])
     LSM:Register(LSM.MediaType.FONT, "Morpheus", [[Fonts\MORPHEUS_CYR.TTF]])
@@ -160,6 +161,11 @@ addonTable.maskAndBorderStyles = {
         type = "texture",
         mask = [[Interface\AddOns\SenseiClassResourceBar\Textures\BarBorders\blizzard-classic-mask.png]],
         border = LSM:Fetch(LSM.MediaType.BORDER, "SCRB Border Blizzard Classic"),
+    },
+    ["Blizzard Classic Thin"] = {
+        type = "texture",
+        mask = [[Interface\AddOns\SenseiClassResourceBar\Textures\BarBorders\blizzard-classic-thin-mask.png]],
+        border = LSM:Fetch(LSM.MediaType.BORDER, "SCRB Border Blizzard Classic Thin"),
     },
     ["None"] = {}
     -- Add more styles here as needed
