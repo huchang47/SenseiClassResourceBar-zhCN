@@ -92,11 +92,11 @@ local function BuildLemSettings(bar, defaults)
             allowInput = true,
             get = function(layoutName)
                 local data = SenseiClassResourceBarDB[config.dbName][layoutName]
-                return data and math.ceil(data.x) or defaults.x
+                return data and addonTable.rounded(data.x) or defaults.x
             end,
             set = function(layoutName, value)
                 SenseiClassResourceBarDB[config.dbName][layoutName] = SenseiClassResourceBarDB[config.dbName][layoutName] or CopyTable(defaults)
-                SenseiClassResourceBarDB[config.dbName][layoutName].x = math.ceil(value)
+                SenseiClassResourceBarDB[config.dbName][layoutName].x = addonTable.rounded(value)
                 bar:ApplyLayout(layoutName)
             end,
         },
@@ -112,11 +112,11 @@ local function BuildLemSettings(bar, defaults)
             allowInput = true,
             get = function(layoutName)
                 local data = SenseiClassResourceBarDB[config.dbName][layoutName]
-                return data and math.ceil(data.y) or defaults.y
+                return data and addonTable.rounded(data.y) or defaults.y
             end,
             set = function(layoutName, value)
                 SenseiClassResourceBarDB[config.dbName][layoutName] = SenseiClassResourceBarDB[config.dbName][layoutName] or CopyTable(defaults)
-                SenseiClassResourceBarDB[config.dbName][layoutName].y = math.ceil(value)
+                SenseiClassResourceBarDB[config.dbName][layoutName].y = addonTable.rounded(value)
                 bar:ApplyLayout(layoutName)
             end,
         },
@@ -190,15 +190,15 @@ local function BuildLemSettings(bar, defaults)
             maxValue = 2,
             valueStep = 0.01,
             formatter = function(value)
-                return string.format("%d%%", value * 100)
+                return string.format("%d%%", addonTable.rounded(value, 2) * 100)
             end,
             get = function(layoutName)
                 local data = SenseiClassResourceBarDB[config.dbName][layoutName]
-                return data and data.scale or defaults.scale
+                return data and addonTable.rounded(data.scale, 2) or defaults.scale
             end,
             set = function(layoutName, value)
                 SenseiClassResourceBarDB[config.dbName][layoutName] = SenseiClassResourceBarDB[config.dbName][layoutName] or CopyTable(defaults)
-                SenseiClassResourceBarDB[config.dbName][layoutName].scale = value
+                SenseiClassResourceBarDB[config.dbName][layoutName].scale = addonTable.rounded(value, 2)
                 bar:ApplyLayout(layoutName)
             end,
         },
@@ -231,11 +231,11 @@ local function BuildLemSettings(bar, defaults)
             allowInput = true,
             get = function(layoutName)
                 local data = SenseiClassResourceBarDB[config.dbName][layoutName]
-                return data and data.width or defaults.width
+                return data and addonTable.rounded(data.width) or defaults.width
             end,
             set = function(layoutName, value)
                 SenseiClassResourceBarDB[config.dbName][layoutName] = SenseiClassResourceBarDB[config.dbName][layoutName] or CopyTable(defaults)
-                SenseiClassResourceBarDB[config.dbName][layoutName].width = value
+                SenseiClassResourceBarDB[config.dbName][layoutName].width = addonTable.rounded(value)
                 bar:ApplyLayout(layoutName)
             end,
             isEnabled = function (layoutName)
@@ -255,11 +255,11 @@ local function BuildLemSettings(bar, defaults)
             allowInput = true,
             get = function(layoutName)
                 local data = SenseiClassResourceBarDB[config.dbName][layoutName]
-                return data and data.minWidth or defaults.minWidth
+                return data and addonTable.rounded(data.minWidth) or defaults.minWidth
             end,
             set = function(layoutName, value)
                 SenseiClassResourceBarDB[config.dbName][layoutName] = SenseiClassResourceBarDB[config.dbName][layoutName] or CopyTable(defaults)
-                SenseiClassResourceBarDB[config.dbName][layoutName].minWidth = value
+                SenseiClassResourceBarDB[config.dbName][layoutName].minWidth = addonTable.rounded(value)
                 bar:ApplyLayout(layoutName)
             end,
             tooltip = "0 to disable. Only active if synced to the Cooldown Manager",
@@ -280,11 +280,11 @@ local function BuildLemSettings(bar, defaults)
             allowInput = true,
             get = function(layoutName)
                 local data = SenseiClassResourceBarDB[config.dbName][layoutName]
-                return data and data.height or defaults.height
+                return data and addonTable.rounded(data.height) or defaults.height
             end,
             set = function(layoutName, value)
                 SenseiClassResourceBarDB[config.dbName][layoutName] = SenseiClassResourceBarDB[config.dbName][layoutName] or CopyTable(defaults)
-                SenseiClassResourceBarDB[config.dbName][layoutName].height = value
+                SenseiClassResourceBarDB[config.dbName][layoutName].height = addonTable.rounded(value)
                 bar:ApplyLayout(layoutName)
             end,
         },
@@ -546,11 +546,11 @@ local function BuildLemSettings(bar, defaults)
             valueStep = 1,
             get = function(layoutName)
                 local data = SenseiClassResourceBarDB[config.dbName][layoutName]
-                return data and data.fontSize or defaults.fontSize
+                return data and addonTable.rounded(data.fontSize) or defaults.fontSize
             end,
             set = function(layoutName, value)
                 SenseiClassResourceBarDB[config.dbName][layoutName] = SenseiClassResourceBarDB[config.dbName][layoutName] or CopyTable(defaults)
-                SenseiClassResourceBarDB[config.dbName][layoutName].fontSize = value
+                SenseiClassResourceBarDB[config.dbName][layoutName].fontSize = addonTable.rounded(value)
                 bar:ApplyFontSettings(layoutName)
             end,
         },
