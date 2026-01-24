@@ -108,7 +108,7 @@ addonTable.importBarAsString = function(importString, dbName)
     return data
 end
 
-addonTable.exportProfileAsString = function(includeBarSettings, includeAddonSettings)
+addonTable.exportProfileAsString = function(includeBarSettings, includeAddonSettings, layoutNameToExport)
     local data = {
         BARS = {},
         GLOBAL = nil,
@@ -168,6 +168,34 @@ addonTable.importProfileFromString = function(importString)
     return data
 end
 SCRB.importProfileFromString = addonTable.importProfileFromString
+
+addonTable.getAvailableProfiles = function()
+    local profiles = {}
+
+    if not SenseiClassResourceBarDB then
+        return profiles
+    end
+
+    for _, barSettings in pairs(addonTable.RegisteredBar or {}) do
+        if barSettings and barSettings.dbName then
+            local dbName = barSettings.dbName
+            if SenseiClassResourceBarDB[dbName] then
+                for layoutName, _ in pairs(SenseiClassResourceBarDB[dbName]) do
+                    print(layoutName)
+                    profiles[layoutName] = true
+                end
+            end
+        end
+    end
+
+    local keyset = {}
+    for k, _ in pairs(profiles) do
+        keyset[#keyset + 1] = k
+    end
+
+    return keyset
+end
+SCRB.getAvailableProfiles = addonTable.getAvailableProfiles
 
 addonTable.prettyPrint = function(...)
   print("|cffb5a707"..addonName..":|r", ...)
