@@ -31,6 +31,7 @@ Mana, Rage, Energy, Focus, Fury, Runic Power, Astral Power, Maelstrom Weapon and
 *   **Mage** → Arcane Charges
 *   **Druid** → Combo Points (Cat Form)
 *   **Demon Hunter** → Soul Fragments (Devourer)
+*   **Hunter** → Tip of the Spear (Survival)
 
 **Ebon Might as a standalone bar**
 
