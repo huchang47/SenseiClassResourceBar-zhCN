@@ -232,3 +232,14 @@ addonTable.getPixelPerfectScale = function()
     local scale = UIParent:GetEffectiveScale()
     return 768 / screenHeight / scale
 end
+
+addonTable.registerCustomFrame = function(addonName, customFrame)
+    -- Add some check for duplicates
+    -- e.g. addonTable.registeredCustomFrames[addonName] = {[customFrame] = true}
+    if addonName and customFrame and customFrame:GetName() then
+       tinsert(addonTable.availableCustomFrames, { text = addonName .. " " .. customFrame:GetName()}) 
+
+       addonTable.fullUpdateBars()
+    end
+end
+SCRB.registerCustomFrame = addonTable.registerCustomFrame

@@ -542,7 +542,12 @@ function BarMixin:GetSize(layoutName, data)
     if not data then return defaults.width or 200, defaults.height or 15 end
 
     local width = nil
-    if data.widthMode ~= nil and data.widthMode ~= "Manual" then
+    if data.widthMode ~= nil and data.widthMode == "Custom" then
+        width = self:GetCustomFrameWidth(layoutName) or data.width or defaults.width
+        if data.minWidth and data.minWidth > 0 then
+            width = max(width, data.minWidth)
+        end
+    elseif data.widthMode ~= nil and data.widthMode ~= "Manual" then
         width = self:GetCooldownManagerWidth(layoutName) or data.width or defaults.width
         if data.minWidth and data.minWidth > 0 then
             width = max(width, data.minWidth)
@@ -811,6 +816,17 @@ function BarMixin:GetCooldownManagerWidth(layoutName)
     end
 
     return nil
+end
+
+function BarMixin:GetCustomFrameWidth(layoutName)
+    local data = self:GetData(layoutName)
+    if not data or not data.customFrame then return nil end
+
+    local _, customFrame = strsplit(" ", data.customFrame)
+    if not customFrame or not _G[customFrame] then return end
+    customFrame = _G[customFrame]
+
+    return customFrame:IsShown() and customFrame:GetWidth() or nil
 end
 
 function BarMixin:ApplyBackgroundSettings(layoutName, data)
