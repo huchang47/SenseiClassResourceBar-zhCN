@@ -265,6 +265,15 @@ function SecondaryResourceBarMixin:OnHide()
     end
 end
 
+function SecondaryResourceBarMixin:ApplyVisibilitySettings(layoutName, inCombat)
+    local data = self:GetData(layoutName)
+    if not data then return end
+
+    self:HideBlizzardSecondaryResource(layoutName, data)
+
+    addonTable.PowerBarMixin.ApplyVisibilitySettings(self, layoutName, inCombat)
+end
+
 addonTable.SecondaryResourceBarMixin = SecondaryResourceBarMixin
 
 addonTable.RegisteredBar = addonTable.RegisteredBar or {}

@@ -82,6 +82,8 @@ local baseLocale = {
     ["HIDE_BLIZZARD_UI"] = "隐藏暴雪自带界面",
     ["HIDE_BLIZZARD_UI_HEALTH_BAR_TOOLTIP"] = "隐藏暴雪自带的玩家框架界面",
     ["HIDE_BLIZZARD_UI_SECONDARY_POWER_BAR_TOOLTIP"] = "隐藏暴雪自带的次要资源界面（例如死亡骑士的符文条）",
+    ["ENABLE_HP_BAR_MOUSE_INTERACTION"] = "可点击生命条",
+    ["ENABLE_HP_BAR_MOUSE_INTERACTION_TOOLTIP"] = "在生命条上启用玩家框体的默认点击行为。",
 
     -- Position & Size category - Edit Mode
     ["CATEGORY_POSITION_AND_SIZE"] = "位置与大小",

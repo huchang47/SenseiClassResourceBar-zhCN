@@ -83,6 +83,8 @@ local baseLocale = {
     ["HIDE_BLIZZARD_UI"] = "Скрыть интерфейс Blizzard",
     ["HIDE_BLIZZARD_UI_HEALTH_BAR_TOOLTIP"] = "Скрывает стандартный фрейм игрока Blizzard",
     ["HIDE_BLIZZARD_UI_SECONDARY_POWER_BAR_TOOLTIP"] = "Скрывает стандартный интерфейс вторичных ресурсов (напр. руны ДК)",
+    ["ENABLE_HP_BAR_MOUSE_INTERACTION"] = "Кликабельная полоса здоровья",
+    ["ENABLE_HP_BAR_MOUSE_INTERACTION_TOOLTIP"] = "Включает стандартное поведение кликов фрейма игрока для полосы здоровья.",
 
     -- Position & Size category - Edit Mode
     ["CATEGORY_POSITION_AND_SIZE"] = "Положение и размер",
