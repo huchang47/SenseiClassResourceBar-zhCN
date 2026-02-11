@@ -592,7 +592,7 @@ function BarMixin:GetSize(layoutName, data)
 
     local scale = addonTable.rounded(data.scale or defaults.scale or 1, 2)
 
-    return addonTable.getNearestPixel(width * scale, scale), addonTable.getNearestPixel(height * scale, scale)
+    return addonTable.rounded(addonTable.getNearestPixel(width * scale, scale)), addonTable.rounded(addonTable.getNearestPixel(height * scale, scale))
 end
 
 function BarMixin:ApplyLayout(layoutName, force)
