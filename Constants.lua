@@ -323,6 +323,18 @@ for name, _ in pairs(addonTable.backgroundStyles) do
     table.insert(addonTable.availableBackgroundStyles, name)
 end
 
+addonTable.availableAbsorbBarPositions = {
+    { text = L["BAR_POSITION_FIXED"], value = "Fixed" },
+    { text = L["BAR_POSITION_REVERSED"], value = "Reversed" },
+    { text = L["BAR_POSITION_ATTACH_HEALTH"], value = "Attach To Health" },
+}
+
+addonTable.availableHealAbsorbBarPositions = {
+    { text = L["BAR_POSITION_FIXED"], value = "Fixed" },
+    { text = L["BAR_POSITION_REVERSED"], value = "Reversed" },
+    { text = L["BAR_POSITION_ATTACH_HEALTH"], value = "Attach To Health" },
+}
+
 -- Power types that should show discrete ticks
 addonTable.tickedPowerTypes = {
     [Enum.PowerType.ArcaneCharges] = true,
